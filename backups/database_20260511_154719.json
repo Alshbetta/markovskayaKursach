@@ -1,0 +1,158 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Иванов Иван",
+      "email": "ivanov@mail.ru",
+      "city": "Москва",
+      "age": 30,
+      "salary": 75000,
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "Петрова Мария",
+      "email": "petrova@yandex.ru",
+      "city": "Санкт-Петербург",
+      "age": 25,
+      "salary": 65000,
+      "active": true
+    },
+    {
+      "id": 3,
+      "name": "Сидоров Алексей",
+      "email": "sidorov@gmail.com",
+      "city": "Москва",
+      "age": 35,
+      "salary": 90000,
+      "active": true
+    },
+    {
+      "id": 4,
+      "name": "Козлова Анна",
+      "email": "kozlova@mail.ru",
+      "city": "Казань",
+      "age": 28,
+      "salary": 55000,
+      "active": false
+    },
+    {
+      "id": 5,
+      "name": "Новиков Дмитрий",
+      "email": "novikov@yandex.ru",
+      "city": "Москва",
+      "age": 42,
+      "salary": 120000,
+      "active": true
+    },
+    {
+      "id": 6,
+      "name": "Морозова Елена",
+      "email": "morozova@gmail.com",
+      "city": "Новосибирск",
+      "age": 31,
+      "salary": 70000,
+      "active": true
+    },
+    {
+      "id": 7,
+      "name": "Волков Сергей",
+      "email": "volkov@mail.ru",
+      "city": "Екатеринбург",
+      "age": 29,
+      "salary": 68000,
+      "active": true
+    },
+    {
+      "id": 8,
+      "name": "Лебедева Ольга",
+      "email": "lebedeva@yandex.ru",
+      "city": "Москва",
+      "age": 26,
+      "salary": 62000,
+      "active": false
+    },
+    {
+      "id": 9,
+      "name": "Кузнецов Андрей",
+      "email": "kuznetsov@gmail.com",
+      "city": "Санкт-Петербург",
+      "age": 38,
+      "salary": 95000,
+      "active": true
+    },
+    {
+      "id": 10,
+      "name": "Попова Татьяна",
+      "email": "popova@mail.ru",
+      "city": "Казань",
+      "age": 33,
+      "salary": 72000,
+      "active": true
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "product": "Ноутбук",
+      "amount": 85000,
+      "status": "completed",
+      "date": "2024-01-15"
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "product": "Телефон",
+      "amount": 45000,
+      "status": "pending",
+      "date": "2024-01-18"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "product": "Планшет",
+      "amount": 32000,
+      "status": "completed",
+      "date": "2024-01-20"
+    },
+    {
+      "id": 4,
+      "user_id": 1,
+      "product": "Наушники",
+      "amount": 5000,
+      "status": "completed",
+      "date": "2024-01-22"
+    },
+    {
+      "id": 5,
+      "user_id": 5,
+      "product": "Монитор",
+      "amount": 28000,
+      "status": "shipped",
+      "date": "2024-01-25"
+    }
+  ],
+  "departments": [
+    {
+      "id": 1,
+      "name": "IT",
+      "budget": 500000
+    },
+    {
+      "id": 2,
+      "name": "Sales",
+      "budget": 300000
+    },
+    {
+      "id": 3,
+      "name": "HR",
+      "budget": 150000
+    },
+    {
+      "id": 4,
+      "name": "Marketing",
+      "budget": 250000
+    }
+  ]
+}
