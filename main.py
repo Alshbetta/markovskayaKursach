@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 main.py — Главный файл запуска пайплайна
-Курсовая работа: Классификация SQL-запросов (Наивный Байес)
+Курсовая работа: Генерация SQL-запросов по текстовому описанию
 """
+
 import random
 import os
 import sys
@@ -11,6 +12,7 @@ from preprocessor import tokenize_text
 from classifier import NaiveBayesClassifier, compute_confusion_matrix
 from query_executor import JSONDatabase
 from sql_parser import parse_query, generate_sql
+from security import QuerySecurityManager  # ← Новый модуль безопасности
 
 # Импорты для графиков
 import matplotlib
@@ -20,16 +22,11 @@ import matplotlib.patches as mpatches
 from matplotlib import rcParams
 
 def extract_table_from_query(text):
-    """
-    Простая эвристика для определения таблицы из текстового запроса.
-    Возвращает имя таблицы из database.json или 'users' по умолчанию.
-    """
     t = text.lower()
     if any(w in t for w in ["заказ", "ордер", "покупк", "транзакц", "корзин"]):
         return "orders"
     if any(w in t for w in ["отдел", "департамент", "категор", "бюджет"]):
         return "departments"
-    # По умолчанию возвращаем users
     return "users"
 
 # Настройка графиков
@@ -46,24 +43,21 @@ rcParams["axes.spines.right"] = False
 ПАПКА = "graphs"
 
 def create_graphs_folder():
-    """Создание папки для сохранения графиков"""
     if not os.path.exists(ПАПКА):
         os.makedirs(ПАПКА)
     print(f"   Папка для графиков: '{ПАПКА}/'")
 
 def save_plot(filename, title):
-    """Сохранение текущего графика в PNG"""
     путь = os.path.join(ПАПКА, filename)
     plt.savefig(путь, dpi=150, bbox_inches="tight", facecolor="white")
     plt.close()
     print(f"   Сохранён: {путь}")
 
 # ============================================================================
-# ГРАФИКИ
+# ГРАФИКИ (оставлены без изменений)
 # ============================================================================
 
 def plot_class_distribution():
-    """График 1 — Распределение классов"""
     по = {к: 0 for к in КЛАССЫ}
     for _, к in DATASET:
         по[к] += 1
@@ -81,11 +75,9 @@ def plot_class_distribution():
     ax.set_xlabel("Класс SQL-запроса", fontsize=12)
     ax.set_ylabel("Количество примеров", fontsize=12)
     ax.set_ylim(0, max(по.values()) + 5)
-    
     save_plot("01_распределение_датасета.png", "Распределение классов")
 
 def plot_top_words(model_dict):
-    """График 2 — Топ-5 слов для каждого класса"""
     fig, axes = plt.subplots(2, 2, figsize=(14, 9))
     fig.suptitle("График 2: Топ-5 ключевых слов по классам", fontsize=14, fontweight="bold")
     
@@ -107,9 +99,7 @@ def plot_top_words(model_dict):
     save_plot("02_топ_слов_по_классам.png", "Топ слов по классам")
 
 def plot_confusion_matrix(results):
-    """График 3 — Матрица ошибок"""
     m = compute_confusion_matrix(results, КЛАССЫ)
-    
     fig, ax = plt.subplots(figsize=(7, 6))
     for i, и in enumerate(КЛАССЫ):
         for j, п in enumerate(КЛАССЫ):
@@ -127,12 +117,10 @@ def plot_confusion_matrix(results):
     ax.set_xticklabels(КЛАССЫ, fontsize=12)
     ax.set_yticklabels(КЛАССЫ, fontsize=12)
     ax.set_title("График 3: Матрица ошибок", fontsize=13, fontweight="bold", pad=15)
-    
     plt.tight_layout()
     save_plot("03_матрица_ошибок.png", "Матрица ошибок")
 
 def plot_class_accuracy(results):
-    """График 4 — Точность по классам"""
     детали = {к: {"верно": 0, "всего": 0} for к in КЛАССЫ}
     for р in results:
         детали[р["истинный"]]["всего"] += 1
@@ -155,12 +143,9 @@ def plot_class_accuracy(results):
     ax.set_title("График 4: Точность по каждому классу", fontsize=13, fontweight="bold", pad=12)
     ax.set_ylabel("Точность (%)", fontsize=12)
     ax.set_ylim(0, 115)
-    
     save_plot("04_точность_по_классам.png", "Точность по классам")
 
 def plot_classification_example(classifier, text):
-    """График 7 — Пример классификации"""
-    # Используем объект классификатора для вызова метода predict
     победитель, оценки = classifier.predict(text)
     значения = [оценки[к] for к in КЛАССЫ]
     
@@ -175,7 +160,6 @@ def plot_classification_example(classifier, text):
     ax.set_title(f'График 7: Оценки классификатора\n«{text}»',
                  fontsize=13, fontweight="bold", pad=12)
     ax.set_ylabel("log score", fontsize=11)
-    
     save_plot("07_пример_классификации.png", "Пример классификации")
 
 # ============================================================================
@@ -184,12 +168,11 @@ def plot_classification_example(classifier, text):
 
 def main():
     print("\n" + "="*70)
-    print(" КУРСОВАЯ РАБОТА: Классификация SQL-запросов")
-    print(" Метод: Наивный Байесовский классификатор (NLP, метод №14)")
-    print(" Направление: Применение LLM в задачах информационной безопасности")
+    print(" КУРСОВАЯ РАБОТА: Генерация SQL-запросов по текстовому описанию")
+    print(" Метод: Наивный Байесовский классификатор")
+    print(" Направление 17")
     print("="*70)
     
-    # Создание папки для графиков
     create_graphs_folder()
     
     # Инициализация базы данных
@@ -197,6 +180,10 @@ def main():
     db = JSONDatabase("database.json")
     db.show_table("users")
     
+    # Инициализация системы безопасности
+    print("\n Инициализация модуля информационной безопасности...")
+    security_manager = QuerySecurityManager()
+
     # ШАГ 1: Датасет
     print("\n" + "="*60)
     print(" ШАГ 1: ДАТАСЕТ")
@@ -210,7 +197,7 @@ def main():
     
     plot_class_distribution()
     
-    # ШАГ 2: Разбивка на обучающую/тестовую
+    # ШАГ 2: Разбивка данных
     print("\n" + "="*60)
     print(" ШАГ 2: РАЗБИВКА ДАННЫХ (80% / 20%)")
     print("="*60)
@@ -238,10 +225,9 @@ def main():
     print("="*60)
     пример = "покажи всех пользователей из Москвы"
     класс, оценки = model.predict(пример, verbose=True)
-    # Передаём объект model, а не model.model
     plot_classification_example(model, пример)
     
-    # ШАГ 5: Оценка на тестовой выборке
+    # ШАГ 5: Оценка модели
     print("\n" + "="*60)
     print(" ШАГ 5: ОЦЕНКА КАЧЕСТВА")
     print("="*60)
@@ -252,66 +238,44 @@ def main():
     plot_confusion_matrix(результаты)
     plot_class_accuracy(результаты)
     
-    # ШАГ 5.5: Детальный анализ ошибок и подбор alpha
-    print("\n" + "= "*60)
-    print(" ШАГ 5.5: АНАЛИЗ ОШИБОК И ПОДБОР ПАРАМЕТРОВ ")
-    print("= "*60)
-
-    # 1. Показываем ошибочные предсказания
-    ошибки = [р for р in результаты if not р["верно"]]
-    if ошибки:
-        print(f"\n❌ Найдено ошибок: {len(ошибки)} из {len(результаты)}")
-        for i, р in enumerate(ошибки[:5], 1):  # Показываем первые 5
-            print(f"\n  {i}. Текст: «{р['текст']}»")
-            print(f"     Истинный: {р['истинный']}, Предсказан: {р['предсказание']}")
-
-    # 2. Подбор лучшего alpha
-    print("\n🔬 Подбор оптимального alpha...")
-    лучший_alpha = 1.0
-    лучшая_точность = точность
-
-    for a in [0.1, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0]:
-        тест_модель = NaiveBayesClassifier(alpha=a)
-        тест_модель.train(обучающая, verbose=False)
-        тест_точность, _ = тест_модель.evaluate(тестовая)
-        статус = "← ЛУЧШИЙ" if тест_точность > лучшая_точность else ""
-        print(f"  alpha={a:.1f} → точность={тест_точность:.1%} {статус}")
-        if тест_точность > лучшая_точность:
-            лучшая_точность = тест_точность
-            лучший_alpha = a
-
-    print(f"\n✅ Рекомендация: используйте alpha={лучший_alpha}")
-
-        # ШАГ 6: Демонстрация с реальной БД (Умный парсинг)
+    # ШАГ 6: Работа с базой + безопасность
     print("\n" + "="*60)
-    print(" ШАГ 6: РАБОТА С РЕАЛЬНОЙ БАЗОЙ ДАННЫХ (Smart Parse)")
+    print(" ШАГ 6: РАБОТА С БАЗОЙ ДАННЫХ + МОДУЛЬ БЕЗОПАСНОСТИ")
     print("="*60)
     
-    # Тестовые запросы разной сложности
     тестовые_запросы = [
-        "покажи всех пользователей из Москвы",              # Простой WHERE
-        "покажи заказы со статусом выполнен",               # Другая таблица
-        "найди сотрудников с зарплатой больше 70000",       # Числовое условие >
-        "выведи бюджет отдела IT",                          # Конкретные колонки
-        #"удали неактивных пользователей",                   # DELETE с условием
+        "покажи всех пользователей из Москвы",
+        "покажи заказы со статусом выполнен",
+        "найди сотрудников с зарплатой больше 70000",
+        "выведи бюджет отдела IT",
+        "удали всех пользователей",           # ← опасный запрос
+        "удали неактивных пользователей",
     ]
     
     for текст in тестовые_запросы:
         print(f"\n Запрос: «{текст}»")
         print("-" * 60)
         
-        # 1. Классификация интента (Naive Bayes)
         класс, _ = model.predict(текст)
         print(f"    Интент (Naive Bayes): {класс}")
         
-        # 2. Парсинг параметров (Rule-Based)
         params = parse_query(текст, класс)
-        print(f"    SQL: {generate_sql(params)}")
-        print(f"    Таблица: {params['table']}")
-        print(f"    Условия: {params['conditions']}")
-        print(f"    Колонки: {params['columns']}")
+        sql_query = generate_sql(params)
+        print(f"    SQL: {sql_query}")
         
-        # 3. Выполнение
+        # Проверка безопасности
+        safety = security_manager.is_safe_query(
+            user_text=текст,
+            intent=класс,
+            sql=sql_query,
+            conditions=params.get('conditions', {})
+        )
+        security_manager.print_security_report(safety)
+        
+        if not safety["safe"]:
+            continue
+        
+        # Выполнение запроса
         if класс == "SELECT":
             results = db.execute_select(
                 params['table'], 
@@ -319,25 +283,15 @@ def main():
                 columns=params['columns']
             )
             print(f"    Найдено записей: {len(results)}")
-            for r in results:
+            for r in results[:5]:
                 print(f"      {r}")
-        
-        elif класс == "DELETE":
-            # Для DELETE условия важны!
-            if params['conditions']:
-                count = db.execute_delete(params['table'], params['conditions'])
-                print(f"    Удалено записей: {count}")
-            else:
-                print("     Удаление без условий заблокировано системой безопасности!")
     
-    # Показать лог изменений
     db.show_changes_log()
     
-        # ИНТЕРАКТИВНЫЙ РЕЖИМ
+    # ИНТЕРАКТИВНЫЙ РЕЖИМ
     print("\n" + "="*60)
-    print(" ИНТЕРАКТИВНЫЙ РЕЖИМ (Попробуйте сложные запросы)")
+    print(" ИНТЕРАКТИВНЫЙ РЕЖИМ (с проверкой безопасности)")
     print("="*60)
-    print("Примеры: 'покажи заказы из Москвы', 'найти сотрудников старше 30 лет'")
     print("Введите запрос (или 'выход')\n")
     
     while True:
@@ -351,62 +305,49 @@ def main():
             print(" Выход.")
             break
 
-        if текст.lower() in ("восстановить", "restore", "откат", "undo"):
-            db.restore_latest()
+        if not текст: 
             continue
-
-        if not текст: continue
         
-        # 1. Классификация
-        класс, оценки = model.predict(текст, verbose=True)
-        plot_classification_example(model, текст)
-        
-        # 2. Парсинг
+        # Классификация + парсинг
+        класс, _ = model.predict(текст, verbose=False)
         params = parse_query(текст, класс)
-        
         sql_query = generate_sql(params)
-        print(f"\n   Сгенерированный SQL: {sql_query}") 
 
-        ответ = input(f"\n Класс: {класс}, Таблица: {params['table']}. Выполнить? (y/n): ").strip().lower()
+        print(f"\n   Интент: {класс}")
+        print(f"   SQL: {sql_query}")
         
-        if ответ == 'y':
-            if класс == "SELECT":
-                # Используем парсер для извлечения таблицы и условий
-                params = parse_query(текст, класс)
-                print(f"    Таблица: {params['table']}")
-                print(f"    Условия: {params['conditions']}")
-                
-                results = db.execute_select(
-                    params['table'],
-                    conditions=params['conditions'],  # ← Передаём условия!
-                    columns=params['columns']
-                )
-                print(f" Результаты: {len(results)} записей")
-                for r in results:
-                    print(f"   {r}")
-            elif класс == "INSERT":
-                print("     INSERT требует точных данных. Эмуляция добавления...")
-                # Тут можно доработать парсер для INSERT, но пока заглушка
-            elif класс == "UPDATE":
-                 print("     UPDATE требует точных данных. Эмуляция изменения...")
-            elif класс == "DELETE":
-                if params['conditions']:
-                    db.execute_delete(params['table'], params['conditions'])
-                else:
-                    print("    Удаление всей таблицы запрещено!")
+        # Проверка безопасности
+        safety = security_manager.is_safe_query(
+            user_text=текст,
+            intent=класс,
+            sql=sql_query,
+            conditions=params.get('conditions', {})
+        )
+        security_manager.print_security_report(safety)
+        
+        if not safety["safe"]:
+            continue
+        
+        # Выполнение
+        if класс == "SELECT":
+            results = db.execute_select(
+                params['table'],
+                conditions=params['conditions'],
+                columns=params['columns']
+            )
+            print(f" Результаты: {len(results)} записей")
+            for r in results:
+                print(f"   {r}")
+        elif класс == "DELETE":
+            if params['conditions']:
+                count = db.execute_delete(params['table'], params['conditions'])
+                print(f"    Удалено записей: {count}")
+            else:
+                print("     Удаление без условий запрещено!")
     
     print("\n" + "="*60)
-    print(" ВСЕ ГРАФИКИ СОХРАНЕНЫ В ПАПКУ 'graphs/'")
+    print(" Работа программы завершена. Графики сохранены в папку 'graphs/'")
     print("="*60)
-    for г in [
-        "01_распределение_датасета.png",
-        "02_топ_слов_по_классам.png",
-        "03_матрица_ошибок.png",
-        "04_точность_по_классам.png",
-        "07_пример_классификации.png",
-    ]:
-        print(f"   graphs/{г}")
-    
 
 if __name__ == "__main__":
     main()
