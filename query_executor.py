@@ -87,7 +87,7 @@ class JSONDatabase:
             results = filtered
 
         # Выборка конкретных колонок
-        if columns != "*":
+        if columns not in ("*", ["*"]):
             if isinstance(columns, str):
                 columns = [c.strip() for c in columns.split(",")]
             results = [{k: v for k, v in row.items() if k in columns} for row in results]
