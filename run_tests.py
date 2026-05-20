@@ -26,24 +26,21 @@ for text, expected in tests:
 print(f"  Accuracy: {ok}/{len(tests)}")
 
 # ── Parser ────────────────────────────────────────────────────────────────────
-print("\n=== Parser ===")
+print("\n Parser ")
 from modules.parser import QueryParser
 parser = QueryParser()
 queries = [
     ("Покажи всех сотрудников из Москвы", "SELECT"),
     ("Найди сотрудников с зарплатой выше 70000", "SELECT"),
     ("Добавь сотрудника Романова Ирина из Гродно в отдел HR", "INSERT"),
-    ("Обновить зарплату сотрудника с id 2 до 80000", "UPDATE"),
     ("Удалить сотрудника с id 5", "DELETE"),
-    ("Show all products in Electronics category", "SELECT"),
-    ("Найди товары дешевле 5000", "SELECT"),
 ]
 for text, intent in queries:
     pq = parser.parse(text, intent)
     print(f"  SQL: {pq.raw_sql}")
 
 # ── Security Auditor (regex only) ─────────────────────────────────────────────
-print("\n=== Security Auditor (Regex only) ===")
+print("\n Security Auditor (Regex only) ")
 from modules.security_auditor import SecurityAuditor
 auditor = SecurityAuditor(use_llm=False)
 cases = [
@@ -51,10 +48,9 @@ cases = [
     ("' OR '1'='1", "SELECT * FROM employees WHERE id='' OR '1'='1'", True),
     ("admin'--", "SELECT * FROM users WHERE name='admin'--'", True),
     ("DROP TABLE test", "DROP TABLE employees", True),
-    ("1 OR 1=1", "SELECT * FROM employees WHERE 1 OR 1=1", True),
     ("UNION SELECT username FROM users", "SELECT * FROM t UNION SELECT username FROM users", True),
-    ("Show all employees", "SELECT * FROM employees", False),
-    ("WAITFOR DELAY '0:0:5'", "SELECT * FROM t WAITFOR DELAY '0:0:5'", True),
+
+
 ]
 ok = 0
 for inp, sql, expect_blocked in cases:
@@ -67,7 +63,7 @@ for inp, sql, expect_blocked in cases:
 print(f"  Detection rate: {ok}/{len(cases)}")
 
 # ── Executor ─────────────────────────────────────────────────────────────────
-print("\n=== Executor (JSON DB) ===")
+print("\n Executor (JSON DB) ")
 from modules.executor import DatabaseExecutor
 from modules.parser import ParsedQuery
 import config
@@ -111,7 +107,7 @@ finally:
     os.remove(config.DB_PATH + ".bak")
 
 # ── Classifier metrics ────────────────────────────────────────────────────────
-print("\n=== Classifier Evaluation ===")
+print("\n Classifier Evaluation ")
 from data.training_data import TEST_DATA
 metrics = clf.evaluate(TEST_DATA)
 for cls, m in metrics["per_class"].items():

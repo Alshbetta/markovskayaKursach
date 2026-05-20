@@ -32,7 +32,6 @@ class IntentClassifier:
         self.classes_ = None
         self.train()
 
-    # ------------------------------------------------------------------
     def train(self, data=None):
         """Train on provided data or built-in TRAINING_DATA."""
         if data is None:
@@ -42,7 +41,7 @@ class IntentClassifier:
         self.classes_ = list(self.pipeline.classes_)
         self._trained = True
 
-    # ------------------------------------------------------------------
+
     def predict(self, text: str) -> str:
         """Return the most probable intent label."""
         return self.pipeline.predict([text])[0]
@@ -58,7 +57,6 @@ class IntentClassifier:
         intent = max(proba, key=proba.get)
         return intent, round(proba[intent], 4)
 
-    # ------------------------------------------------------------------
     def evaluate(self, test_data: list) -> dict:
         """Compute Precision, Recall, F1 on a test set."""
         texts, true_labels = zip(*test_data)
@@ -105,7 +103,6 @@ class IntentClassifier:
             "std_f1": round(float(scores.std()), 4),
         }
 
-    # ------------------------------------------------------------------
     def print_report(self, test_data: list):
         texts, true_labels = zip(*test_data)
         pred_labels = [self.predict(t) for t in texts]

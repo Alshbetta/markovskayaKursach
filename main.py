@@ -49,11 +49,11 @@ from data.training_data import TEST_DATA, MALICIOUS_INPUTS, SAFE_SQL_SAMPLES
 # ── Banner ───────────────────────────────────────────────────────────────────
 
 BANNER = """
-╔══════════════════════════════════════════════════════════════════╗
-║        Text2SQL System with LLM Security Audit                  ║
-║  Применение LLM в решении задач информационной безопасности     ║
-║  Матеюк Е.Г. | Кибербезопасность | 3 курс | 2026               ║
-╚══════════════════════════════════════════════════════════════════╝
+
+        Text2SQL System with LLM Security Audit                  
+  Применение LLM в решении задач информационной безопасности     
+  Матеюк Е.Г. | Кибербезопасность | 3 курс | 2026               
+
 """
 
 HELP_TEXT = """
@@ -71,7 +71,6 @@ HELP_TEXT = """
   Добавь нового сотрудника Петров Иван в отдел ИТ из Гродно
   Обнови зарплату сотрудника с id 2 до 80000
   Удалить сотрудника с id 5
-  Show all products in Electronics category
 """
 
 
@@ -127,7 +126,7 @@ def run_pipeline(
         info("Уверенность", f"{confidence * 100:.1f}%")
         proba = classifier.predict_proba(user_input)
         bar_parts = "  " + "  ".join(
-            f"{k}: {GREEN('█' * int(v * 20)) if k == intent else GRAY('░' * int(v * 20))} {v:.2f}"
+            f"{k}: {GREEN('█' * int(v * 20)) if k == intent else GRAY('|' * int(v * 20))} {v:.2f}"
             for k, v in sorted(proba.items(), key=lambda x: -x[1])
         )
         print(bar_parts)
@@ -231,18 +230,15 @@ def run_demo(classifier, parser, auditor, executor):
     demo_queries = [
         "Покажи всех сотрудников из Москвы",
         "Показать сотрудников с зарплатой выше 70000",
-        "Добавь нового сотрудника Романова Ирина из Минска в отдел HR",
         "Обновить зарплату сотрудника с id 1 до 82000",
-        "Удалить сотрудника с id 7",
-        "Show all products in Electronics category",
     ]
 
-    print(BOLD("\n--- Легитимные запросы ---"))
+    print(BOLD("\n Легитимные запросы "))
     for q in demo_queries:
         print(f"\n{BOLD('>')} {q}")
         run_pipeline(q, classifier, parser, auditor, executor, verbose=True)
 
-    print(BOLD("\n--- Атаки SQL-инъекций ---"))
+    print(BOLD("\n Атаки SQL-инъекций "))
     for raw_input, attack_type in MALICIOUS_INPUTS[:6]:
         print(f"\n{BOLD('>')} {raw_input}  {GRAY(f'[{attack_type}]')}")
         run_pipeline(raw_input, classifier, parser, auditor, executor, verbose=True)
