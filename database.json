@@ -1,0 +1,165 @@
+{
+  "employees": [
+    {
+      "id": 1,
+      "name": "Иванов Иван Иванович",
+      "city": "Москва",
+      "department": "ИТ",
+      "position": "Разработчик ПО",
+      "salary": 82000,
+      "age": 32
+    },
+    {
+      "id": 2,
+      "name": "Петрова Мария Сергеевна",
+      "city": "Минск",
+      "department": "Бухгалтерия",
+      "position": "Главный бухгалтер",
+      "salary": 65000,
+      "age": 28
+    },
+    {
+      "id": 3,
+      "name": "Сидоров Алексей Петрович",
+      "city": "Москва",
+      "department": "ИТ",
+      "position": "Системный администратор",
+      "salary": 85000,
+      "age": 35
+    },
+    {
+      "id": 4,
+      "name": "Козлова Анна Дмитриевна",
+      "city": "Гродно",
+      "department": "HR",
+      "position": "HR-менеджер",
+      "salary": 55000,
+      "age": 26
+    },
+    {
+      "id": 5,
+      "name": "Новиков Дмитрий Александрович",
+      "city": "Минск",
+      "department": "ИТ",
+      "position": "Архитектор ПО",
+      "salary": 90000,
+      "age": 38
+    },
+    {
+      "id": 6,
+      "name": "Смирнова Ольга Николаевна",
+      "city": "Москва",
+      "department": "HR",
+      "position": "Рекрутер",
+      "salary": 58000,
+      "age": 30
+    },
+    {
+      "id": 8,
+      "city": "Минск",
+      "department": "HR",
+      "name": "Романова Ирина"
+    }
+  ],
+  "departments": [
+    {
+      "id": 1,
+      "name": "ИТ",
+      "head": "Сидоров Алексей Петрович",
+      "budget": 5000000
+    },
+    {
+      "id": 2,
+      "name": "Бухгалтерия",
+      "head": "Петрова Мария Сергеевна",
+      "budget": 2000000
+    },
+    {
+      "id": 3,
+      "name": "HR",
+      "head": "Козлова Анна Дмитриевна",
+      "budget": 1500000
+    }
+  ],
+  "positions": [
+    {
+      "id": 1,
+      "title": "Разработчик ПО",
+      "department": "ИТ",
+      "min_salary": 70000
+    },
+    {
+      "id": 2,
+      "title": "Системный администратор",
+      "department": "ИТ",
+      "min_salary": 65000
+    },
+    {
+      "id": 3,
+      "title": "Архитектор ПО",
+      "department": "ИТ",
+      "min_salary": 90000
+    },
+    {
+      "id": 4,
+      "title": "Главный бухгалтер",
+      "department": "Бухгалтерия",
+      "min_salary": 65000
+    },
+    {
+      "id": 5,
+      "title": "Бухгалтер",
+      "department": "Бухгалтерия",
+      "min_salary": 55000
+    },
+    {
+      "id": 6,
+      "title": "HR-менеджер",
+      "department": "HR",
+      "min_salary": 55000
+    },
+    {
+      "id": 7,
+      "title": "Рекрутер",
+      "department": "HR",
+      "min_salary": 50000
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Ноутбук Dell XPS",
+      "category": "Электроника",
+      "price": 45000,
+      "stock": 15
+    },
+    {
+      "id": 2,
+      "name": "Мышь Logitech MX",
+      "category": "Периферия",
+      "price": 2500,
+      "stock": 50
+    },
+    {
+      "id": 3,
+      "name": "Монитор Samsung 27",
+      "category": "Электроника",
+      "price": 25000,
+      "stock": 8
+    },
+    {
+      "id": 4,
+      "name": "Клавиатура Keychron",
+      "category": "Периферия",
+      "price": 8500,
+      "stock": 20
+    },
+    {
+      "id": 5,
+      "name": "Наушники Sony WH",
+      "category": "Электроника",
+      "price": 12000,
+      "stock": 12
+    }
+  ]
+}
